@@ -1,0 +1,61 @@
+<html>
+  <head>
+    <title>ESP32-CAM Robot</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      body { font-family: Arial; text-align: center; margin:0px auto; padding-top: 30px;}
+      table { margin-left: auto; margin-right: auto; }
+      td { padding: 8 px; }
+      .button {
+        background-color: #2f4468;
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 18px;
+        margin: 6px 3px;
+        cursor: pointer;
+      }
+      img { width: auto; max-width: 100%; height: auto; }
+    </style>
+  </head>
+  <body>
+    <h1>ESP32-CAM Pan and Tilt</h1>
+    <p>Last Entry IP: <span id="lastIp">Loading...</span></p> <!-- Display last entry IP here -->
+    <img src="" id="photo">
+    <table>
+      <tr><td colspan="3" align="center"><button class="button" onmousedown="toggleCheckbox('up');" ontouchstart="toggleCheckbox('up');">Up</button></td></tr>
+      <tr><td align="center"><button class="button" onmousedown="toggleCheckbox('left');" ontouchstart="toggleCheckbox('left');">Left</button></td><td align="center"></td><td align="center"><button class="button" onmousedown="toggleCheckbox('right');" ontouchstart="toggleCheckbox('right');">Right</button></td></tr>
+      <tr><td colspan="3" align="center"><button class="button" onmousedown="toggleCheckbox('down');" ontouchstart="toggleCheckbox('down');">Down</button></td></tr>                   
+    </table>
+
+    <script>
+      function toggleCheckbox(x) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "/action?go=" + x, true);
+        xhr.send();
+      }
+
+      window.onload = function() {
+        // Get the image stream
+        document.getElementById("photo").src = window.location.href.slice(0, -1) + ":81/stream";
+        
+        // Fetch ThingSpeak Data
+        fetch('https://api.thingspeak.com/channels/2948792/feeds.json?api_key=JSRDQ9RHTFP58VKC&results=1')
+          .then(response => response.json())
+          .then(data => {
+            // Get the latest entry's IP (assuming the IP is in field1)
+            let ip = data.feeds[0].field1; // Replace `field1` with the correct field if necessary
+            document.getElementById("lastIp").textContent = ip;
+          })
+          .catch(error => {
+            console.error('Error fetching ThingSpeak data:', error);
+            document.getElementById("lastIp").textContent = 'Error loading IP';
+          });
+      }
+    </script>
+  </body>
+</html>
+
