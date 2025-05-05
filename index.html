@@ -1,29 +1,147 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>ESP32-CAM IP Display</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CIWS Prototype User Guide</title>
     <style>
-      body { font-family: Arial; text-align: center; padding-top: 30px; }
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #121212;
+            color: #E0E0E0;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        header {
+            background: #1E1E1E;
+            color: #FFFFFF;
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+        h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        h2 {
+            color: #BB86FC;
+            margin-top: 20px;
+        }
+        p {
+            margin: 10px 0;
+        }
+        ul, ol {
+            text-align: left;
+            margin: 20px auto;
+            max-width: 600px;
+            padding: 0;
+        }
+        li {
+            margin: 10px 0;
+        }
+        .ip-display {
+            font-size: 1.2em;
+            margin: 20px 0;
+            padding: 10px;
+            background: #1E1E1E;
+            border: 1px solid #BB86FC;
+            border-radius: 5px;
+        }
+        footer {
+            margin-top: 40px;
+            font-size: 0.9em;
+            color: #B0BEC5;
+        }
+        .help-section {
+            background: #1E1E1E;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .help-section p {
+            margin: 5px 0;
+        }
     </style>
-  </head>
-  <body>
-    <h1>ESP32-CAM IP Address</h1>
-    <p>Last Entry IP: <span id="lastIp">Loading...</span></p>
+</head>
+<body>
 
-    <script>
-      window.onload = function() {
+<header>
+    <h1>CIWS Prototype User Guide</h1>
+</header>
+
+<div class="ip-display">
+    <p>Last Entry IP: <span id="lastIp">Loading...</span></p>
+</div>
+
+<h2>Project Description</h2>
+<p>This is a simple prototype inspired by the Close-In Weapon System (CIWS) used on naval ships. It detects and tracks enemy targets—specifically red-colored objects—and automatically aims a laser pointer at them to simulate engagement.</p>
+
+<h2>Working Description</h2>
+<p>Upon powering on, the system performs a self-test that includes simulated gunfire, smoke generation, and servo movement. The core controller is an ESP32-CAM, which manages the hardware and streams live video to a specific IP address.</p>
+
+<h2>Components Used</h2>
+<ul>
+    <li>ESP32-CAM – Main controller for hardware and video streaming</li>
+    <li>MG90S Servo Motors (2x) – For pan and tilt turret control</li>
+    <li>5mW Laser Pointer – Simulates targeting system</li>
+    <li>Humidifier Module – Mimics gun smoke</li>
+    <li>Bullet Fire Simulator Machine – Simulates weapon firing</li>
+    <li>2x 18650 Li-ion Cells (in series) – Power source</li>
+    <li>Buck Converter – Steps down voltage for stable power supply</li>
+</ul>
+
+<h2>User Guide</h2>
+<ol>
+    <li>Power on the CIWS system using the connected 18650 cells.</li>
+    <li>Open the mobile/web app named <strong>"Turret"</strong>. It will display the live video IP address.</li>
+    <li>Copy the IP address shown in the app.</li>
+    <li>Install Python on your PC from:  
+        <a href="https://www.python.org/downloads/" style="color: #BB86FC;">https://www.python.org/downloads/</a>
+    </li>
+    <li>Open your terminal or command prompt and install the required libraries:
+        <pre style="background:#1E1E1E; padding:10px; border-radius:5px; color:#BB86FC;">
+pip install opencv-python requests numpy</pre>
+    </li>
+    <li>Download the Python control script from here:  
+        <a href="./main.py" style="color: #BB86FC;">Download main.py</a>  
+    </li>
+    <li>Paste the copied IP address into the `main.py` script where required  
+        (usually as:  
+        <code>ESP32_CAM_IP = "http://192.168.x.x"</code>).
+    </li>
+    <li>Run the Python script:
+        <pre style="background:#1E1E1E; padding:10px; border-radius:5px; color:#BB86FC;">
+python main.py</pre>
+    </li>
+    <li>The system will now begin tracking red-colored targets automatically using the live video stream.</li>
+</ol>
+
+<div class="help-section">
+    <h2>Help</h2>
+    <p>If you have any questions or need assistance, please contact us:</p>
+    <p>Email: <a href="mailto:yashrajkumawat7357@gmail.com" style="color: #BB86FC;">yashrajkumawat7357@gmail.com</a></p>
+    <p>Phone: <strong>123445667</strong></p>
+</div>
+
+<footer>
+    <p>&copy; 2023 CIWS Prototype Project. All rights reserved.</p>
+</footer>
+
+<script>
+    window.onload = function() {
         fetch('https://api.thingspeak.com/channels/2948792/feeds.json?api_key=JSRDQ9RHTFP58VKC&results=1')
-          .then(response => response.json())
-          .then(data => {
-            let ip = data.feeds[0].field1;
-            document.getElementById("lastIp").textContent = ip;
-          })
-          .catch(error => {
-            console.error('Error fetching ThingSpeak data:', error);
-            document.getElementById("lastIp").textContent = 'Error loading IP';
-          });
-      }
-    </script>
-  </body>
-</html>
+            .then(response => response.json())
+            .then(data => {
+                let ip = data.feeds[0].field1;
+                document.getElementById("lastIp").textContent = ip;
+            })
+            .catch(error => {
+                console.error('Error fetching ThingSpeak data:', error);
+                document.getElementById("lastIp").textContent = 'Error loading IP';
+            });
+    }
+</script>
+
+</body>
+  </html>
